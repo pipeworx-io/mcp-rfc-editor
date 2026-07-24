@@ -35,17 +35,24 @@ const tools: McpToolExport['tools'] = [
   { name: 'search', description: 'Substring search in title/abstract.', inputSchema: { type: 'object', properties: { query: { type: 'string' }, status: { type: 'string' } }, required: ['query'] } },
 ];
 
+// Extract an RFC number from any form agents pass: 2616, "2616", "RFC 2616",
+// "rfc2616". Previously `args.number as number | 0` returned 0 for strings.
+function rfcNum(args: Record<string, unknown>): number {
+  const raw = String(args.number ?? args.rfc ?? args.id ?? '').replace(/[^0-9]/g, '');
+  return raw ? Number(raw) : 0;
+}
+
 async function callTool(name: string, args: Record<string, unknown>): Promise<unknown> {
   switch (name) {
     case 'rfc_text': {
-      const n = ((args.number as number) | 0).toString();
+      const n = rfcNum(args).toString();
       const res = await fetch(`${BASE}/rfc/rfc${n}.txt`, { headers: { 'User-Agent': UA } });
       if (res.status === 404) throw new Error(`RFC ${n} not found.`);
       if (!res.ok) throw new Error(`RFC Editor: ${res.status}`);
       return { rfc: Number(n), format: 'text', body: await res.text() };
     }
     case 'rfc_metadata': {
-      const n = ((args.number as number) | 0).toString().padStart(4, '0');
+      const n = rfcNum(args).toString().padStart(4, '0');
       const xml = await loadIndex();
       const entry = extractEntry(xml, `RFC${n}`, 'rfc-entry');
       return entry ? parseRfcEntry(entry) : null;
@@ -92,7 +99,17 @@ async function callTool(name: string, args: Record<string, unknown>): Promise<un
 }
 
 function extractEntry(xml: string, idText: string, kind: 'rfc-entry' | 'bcp-entry' | 'std-entry'): string | null {
-  const re = new RegExp(`<${kind}>([\\s\\S]*?<doc-id>${idText}<\\/doc-id>[\\s\\S]*?)<\\/${kind}>`);
+  // The doc-id must be INSIDE a single <kind> block. The negative lookahead
+  // stops [\s\S] from crossing a closing </kind> tag, so the match can't start
+  // at an earlier entry and span forward to the target (which returned RFC1's
+  // data for every lookup). `(?:(?!</kind>)[\s\S])*?` = "any char that isn't the
+  // start of the closing tag".
+  // The entry's OWN id is the FIRST <doc-id>, immediately after the opening
+  // tag. The SAME id also appears inside OTHER entries' <obsoletes>/
+  // <obsoleted-by>/<updates> blocks, so we must anchor on the leading doc-id,
+  // not just "contains this doc-id anywhere" (which matched a referencing entry).
+  const guard = `(?:(?!<\\/${kind}>)[\\s\\S])*?`;
+  const re = new RegExp(`<${kind}>\\s*<doc-id>${idText}<\\/doc-id>${guard}<\\/${kind}>`);
   const m = re.exec(xml);
   return m ? m[0] : null;
 }
@@ -109,6 +126,24 @@ function parseRfcEntry(xml: string): Record<string, unknown> {
     if (name) authors.push(name.trim());
   }
   if (authors.length) out.authors = authors;
+
+  // Relationship chains — agents MUST know when an RFC is superseded (e.g.
+  // RFC 2616 is obsoleted by 7230-7235). These live in <obsoletes>/
+  // <obsoleted-by>/<updates>/<updated-by> blocks, each holding <doc-id>s.
+  const rels = (block: string): string[] => {
+    const b = matchOne(new RegExp(`<${block}>([\\s\\S]*?)<\\/${block}>`), xml);
+    if (!b) return [];
+    return [...b.matchAll(/<doc-id>\s*RFC0*(\d+)\s*<\/doc-id>/g)].map((m) => `RFC ${m[1]}`);
+  };
+  const obsoletes = rels('obsoletes');
+  const obsoletedBy = rels('obsoleted-by');
+  const updates = rels('updates');
+  const updatedBy = rels('updated-by');
+  if (obsoletes.length) out.obsoletes = obsoletes;
+  if (obsoletedBy.length) out.obsoleted_by = obsoletedBy;
+  if (updates.length) out.updates = updates;
+  if (updatedBy.length) out.updated_by = updatedBy;
+  out.is_obsolete = obsoletedBy.length > 0;
   return out;
 }
 

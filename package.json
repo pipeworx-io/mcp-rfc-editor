@@ -1,7 +1,7 @@
 {
   "name": "@pipeworx/mcp-rfc-editor",
-  "version": "0.1.0",
-  "description": "RFC Editor — full RFC text + metadata + errata + BCP/STD mappings",
+  "version": "0.1.1",
+  "description": "RFC Editor MCP.",
   "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",
