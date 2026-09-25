@@ -1,20 +1,32 @@
 {
   "name": "@pipeworx/mcp-rfc-editor",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "RFC Editor MCP.",
   "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",
+  "bin": {
+    "mcp-rfc-editor": "bin/cli.js"
+  },
   "keywords": ["mcp", "mcp-server", "model-context-protocol", "pipeworx", "rfc-editor"],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pipeworx-io/mcp-rfc-editor"
+    "url": "git+https://github.com/pipeworx-io/mcp-rfc-editor.git"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "tsx": "^4.19.0"
+  },
   "devDependencies": {
-    "typescript": "^5.7.0"
+    "typescript": "^5.9.3",
+    "@cloudflare/workers-types": "^4.20260405.1"
+  },
+  "pipeworx": {
+    "sourceHash": "v1-57d6d79fc829f6a5a4fc28d233819cb54a190c5f0cfcf3ff2595cf41124c31b6",
+    "sourceCommit": "00c836ddeaecbdd581dcfb0fb1842efea104006e"
   }
 }
