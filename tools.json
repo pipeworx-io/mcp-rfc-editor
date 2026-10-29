@@ -1,0 +1,92 @@
+[
+  {
+    "name": "rfc_text",
+    "description": "Full RFC plain text.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "number"
+      ]
+    }
+  },
+  {
+    "name": "rfc_metadata",
+    "description": "RFC index entry metadata.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "number"
+      ]
+    }
+  },
+  {
+    "name": "errata",
+    "description": "Known errata.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "number"
+        }
+      }
+    }
+  },
+  {
+    "name": "bcp",
+    "description": "BCP → RFC list.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "number"
+      ]
+    }
+  },
+  {
+    "name": "std",
+    "description": "STD → RFC list.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "number"
+      ]
+    }
+  },
+  {
+    "name": "search",
+    "description": "Substring search in title/abstract.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ]
+    }
+  }
+]
