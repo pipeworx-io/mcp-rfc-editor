@@ -1,6 +1,6 @@
 {
   "name": "@pipeworx/mcp-rfc-editor",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "RFC Editor MCP.",
   "type": "module",
   "main": "lib/index.js",
@@ -27,7 +27,7 @@
     "mode": "gateway",
     "slug": "rfc-editor",
     "gatewaySlug": "rfc-editor",
-    "sourceHash": "v1-af0164d1188917e076249bac44ab281a1fe4c3bdb4f5013ccc37a873f4b95ea5",
-    "sourceCommit": "6bae4cfa7b6a73bbe014dc8820a19c80c842b21e"
+    "sourceHash": "v1-0d14be4477fb3efe11a8b478307c5ac81a0767a4493e3b6fe4346cf048ba91f0",
+    "sourceCommit": "db27387ed3ef7ec4805d465f7964a7f65f937006"
   }
 }
